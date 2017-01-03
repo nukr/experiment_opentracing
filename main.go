@@ -11,10 +11,11 @@ import (
 )
 
 func main() {
-	var port = 8080
-	var appdashPort = 8700
+	var port = 8800
+	// var appdashPort = 8700
 
-	addr := startAppdashServer(appdashPort)
+	// addr := startAppdashServer(appdashPort)
+	addr := fmt.Sprintf("localhost:%d", 8701)
 	tracer := appdashot.NewTracer(appdash.NewRemoteCollector(addr))
 	opentracing.InitGlobalTracer(tracer)
 
@@ -25,6 +26,6 @@ func main() {
 	mux.HandleFunc("/async", serviceHandler)
 	mux.HandleFunc("/service", serviceHandler)
 	mux.HandleFunc("/db", dbHandler)
-	fmt.Printf("http server is up and listening on port %d", port)
+	fmt.Printf("http server is up and listening on port %d\n", port)
 	log.Fatal(http.ListenAndServe(httpServerAddr, mux))
 }
