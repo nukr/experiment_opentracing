@@ -16,8 +16,21 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Request started\n"))
 
-	span := opentracing.StartSpan("/home")
+	opName := fmt.Sprintf("%s %s", r.Method, r.URL.Path)
+	var span opentracing.Span
+	spCtx, err := opentracing.GlobalTracer().Extract(
+		opentracing.TextMap,
+		opentracing.HTTPHeadersCarrier(r.Header),
+	)
+	if err == nil {
+		span = opentracing.StartSpan(opName, opentracing.ChildOf(spCtx))
+	} else {
+		span = opentracing.StartSpan(opName)
+	}
 	defer span.Finish()
+
+	// span := opentracing.StartSpan("/home")
+	// defer span.Finish()
 
 	asyncReq, err := http.NewRequest("GET", "http://localhost:8800/async", nil)
 
